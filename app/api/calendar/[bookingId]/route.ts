@@ -4,10 +4,11 @@ import { generateICS } from '@/lib/calendar'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
   try {
-    const booking = await prisma.booking.findUnique({ where: { id: params.bookingId } })
+    const { bookingId } = await params
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
 
     if (!booking) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 })

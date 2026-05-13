@@ -7,19 +7,21 @@ import Link from 'next/link'
 import { CheckCircle, Car, Calendar, User, Phone, Mail, AlertTriangle } from 'lucide-react'
 
 interface Props {
-  params: { bookingId: string }
-  searchParams: { payment_intent?: string; redirect_status?: string }
+  params: Promise<{ bookingId: string }>
+  searchParams: Promise<{ payment_intent?: string; redirect_status?: string }>
 }
 
 export default async function ConfirmationPage({ params, searchParams }: Props) {
-  const booking = await prisma.booking.findUnique({ where: { id: params.bookingId } })
+  const { bookingId } = await params
+  const sp = await searchParams
+  const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
   if (!booking) notFound()
 
   let paymentConfirmed = booking.status === 'confirmed'
 
-  if (!paymentConfirmed && searchParams.payment_intent) {
+  if (!paymentConfirmed && sp.payment_intent) {
     try {
-      const pi = await stripe.paymentIntents.retrieve(searchParams.payment_intent)
+      const pi = await stripe.paymentIntents.retrieve(sp.payment_intent)
       if (pi.status === 'succeeded') {
         await prisma.booking.update({
           where: { id: booking.id },
@@ -34,7 +36,7 @@ export default async function ConfirmationPage({ params, searchParams }: Props) 
 
   const addOns: string[] = JSON.parse(booking.addOns || '[]')
 
-  if (!paymentConfirmed && searchParams.redirect_status === 'failed') {
+  if (!paymentConfirmed && sp.redirect_status === 'failed') {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ paddingTop: '80px' }}>
         <div className="max-w-md w-full text-center">
