@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id                  String   @id @default(cuid())
+  stripePaymentIntent String?  @unique
+  stripeSessionId     String?
+  status              String   @default("pending_payment")
+
+  vehicleTypeId       String
+  vehicleTypeName     String
+  vehicleConditionId  String
+  vehicleMake         String
+  vehicleModel        String
+  vehicleReg          String
+
+  serviceId           String
+  serviceName         String
+  addOns              String
+
+  date                String
+  timeSlot            String
+
+  firstName           String
+  lastName            String
+  email               String
+  phone               String
+  postcode            String
+  address             String
+  notes               String
+
+  basePrice           Float
+  conditionSurcharge  Float
+  addOnTotal          Float
+  subtotal            Float
+  deposit             Float
+  balanceDue          Float
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
