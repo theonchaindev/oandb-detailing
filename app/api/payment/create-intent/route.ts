@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { QuoteState, PriceBreakdown, services, vehicleTypes, addOns } from '@/lib/pricing'
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     const depositInPence = Math.round(pricing.deposit * 100)
 
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntent = await getStripe().paymentIntents.create({
       amount: depositInPence,
       currency: 'gbp',
       description: `O&B Detailing deposit — ${service.name} for ${state.vehicleMake} ${state.vehicleModel}`,

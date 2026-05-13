@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { formatDate, formatTime } from '@/lib/pricing'
 import CalendarButtons from '@/components/CalendarButtons'
 import Link from 'next/link'
@@ -21,7 +21,7 @@ export default async function ConfirmationPage({ params, searchParams }: Props) 
 
   if (!paymentConfirmed && sp.payment_intent) {
     try {
-      const pi = await stripe.paymentIntents.retrieve(sp.payment_intent)
+      const pi = await getStripe().paymentIntents.retrieve(sp.payment_intent)
       if (pi.status === 'succeeded') {
         await prisma.booking.update({
           where: { id: booking.id },
